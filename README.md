@@ -76,6 +76,21 @@ and which Hermes tools to enable. Edit it before running to customize.
 
 ---
 
+## Try it out
+
+The [`example/`](example/) folder has a sample research paper
+(`2605.28774v1.pdf`) and a ready-made list of demo questions — from quick
+summaries to live tool-calling and skill creation — so you can show the agent
+off immediately:
+
+```bash
+cd example
+hermes
+```
+
+See [`example/README.md`](example/README.md) for the full question set and a
+suggested 3-minute demo flow.
+
 ## Operating the box
 
 ```bash
