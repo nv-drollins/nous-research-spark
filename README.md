@@ -74,6 +74,38 @@ Everything tunable lives in [`scripts/config.env`](scripts/config.env):
 the model handle, port, context length, GPU memory fraction, extra vLLM flags,
 and which Hermes tools to enable. Edit it before running to customize.
 
+### The Hermes interactive setup wizard
+
+When Hermes is installed for the **first time**, its official installer may drop
+you into an interactive setup wizard. If it does, answer as follows — this
+points Hermes at the local vLLM endpoint. (The installer re-applies all of this
+afterward anyway, so these choices just get you through the wizard cleanly.)
+
+| Prompt | Choose |
+|--------|--------|
+| Install ripgrep / ffmpeg? | **Enter** (accept default — yes) |
+| **How would you like to set up Hermes?** | **Blank Slate** |
+| Select provider | **Custom endpoint (enter URL manually)** |
+| API base URL | `http://localhost:8000/v1` |
+| API key [optional] | leave blank, press **Enter** |
+| Model selection | `nvidia/Qwen3.6-35B-A3B-NVFP4` |
+| Context length | **Enter** (auto-detect → 262144) |
+| Display name | **Enter** (accept default) |
+| Select terminal backend | **Keep current (local)** / **Local** |
+| Your minimal agent is ready. What next? | **Start with everything disabled — finish now** |
+
+> ⚠️ **Do NOT pick "Quick Setup."** It signs in through the Nous portal instead
+> of offering provider selection, so it won't point Hermes at your local model.
+> **Blank Slate** is the one you want. "Full setup" also works but asks far more
+> than you need.
+
+**Interrupted mid-install?** (e.g. power loss during the Hermes step) Just re-run
+`./install.sh`. It's idempotent: if Hermes is already installed it **skips the
+wizard entirely**, then re-applies the model config and tool selection and
+re-verifies the round-trip. So if the installer "goes right past" the Hermes
+prompts on a re-run, that's expected and correct — it means Hermes was already
+in place from the interrupted attempt.
+
 ---
 
 ## Try it out
