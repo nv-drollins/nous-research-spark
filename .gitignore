@@ -1,0 +1,5 @@
+# Local state written by the installer at runtime — never commit secrets.
+.hermes-spark/
+*.env.local
+hf_token
+*.log
