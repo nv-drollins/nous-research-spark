@@ -64,10 +64,14 @@ else
 fi
 
 # A repo checkout alongside us would otherwise reintroduce the bug on reinstall.
-cfg="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)/config.env"
-if [[ -f "${cfg}" ]] && ! grep -q -- "--tool-call-parser ${WANT}" "${cfg}"; then
-  warn "${cfg} still has the old parser — 'git pull' to update it,"
-  warn "  otherwise a future ./install.sh will undo this fix."
+# BASH_SOURCE is unset when piped from curl, hence the guard.
+self="${BASH_SOURCE[0]:-}"
+if [[ -n "${self}" ]]; then
+  cfg="$(cd "$(dirname "${self}")" 2>/dev/null && pwd)/config.env"
+  if [[ -f "${cfg}" ]] && ! grep -q -- "--tool-call-parser ${WANT}" "${cfg}"; then
+    warn "${cfg} still has the old parser — 'git pull' to update it,"
+    warn "  otherwise a future ./install.sh will undo this fix."
+  fi
 fi
 
 # --- 3. restart -------------------------------------------------------------
