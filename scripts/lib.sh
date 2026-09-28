@@ -244,7 +244,28 @@ verify_stack() {
     && ok "vLLM /v1/models reachable" \
     || warn "vLLM /v1/models not reachable"
 
-  # 2) hermes can call the model non-interactively
+  # 2) tool-calling actually parses.
+  # This is the check that matters for an AGENT box. A plain text round-trip
+  # passes even when --tool-call-parser is wrong; tool calls then silently fail
+  # to parse and the agent looks like it "does nothing". Assert a real tool call
+  # comes back as structured tool_calls (not raw text stuck in `content`).
+  echo "  Verifying tool-call parsing (--tool-call-parser ${VLLM_EXTRA_ARGS##*--tool-call-parser })..."
+  local tc_probe
+  tc_probe="$(curl -s -X POST "http://localhost:${VLLM_PORT}/v1/chat/completions" \
+    -H 'Content-Type: application/json' \
+    -d "{\"model\":\"${MODEL_HANDLE}\",\"messages\":[{\"role\":\"user\",\"content\":\"What is 847 * 293? Use the calculate tool.\"}],\"tools\":[{\"type\":\"function\",\"function\":{\"name\":\"calculate\",\"description\":\"Do arithmetic\",\"parameters\":{\"type\":\"object\",\"properties\":{\"expression\":{\"type\":\"string\"}},\"required\":[\"expression\"]}}}],\"tool_choice\":\"auto\",\"max_tokens\":1200}" 2>/dev/null)"
+  if echo "${tc_probe}" | grep -q '"tool_calls":[[:space:]]*\[' \
+     && echo "${tc_probe}" | grep -q '"finish_reason":[[:space:]]*"tool_calls"'; then
+    ok "Tool calls parse correctly (finish_reason=tool_calls)"
+  else
+    warn "TOOL CALLING IS BROKEN — the model emitted a tool call the server could not parse."
+    warn "  The agent will accept prompts, think, then return to the prompt without acting."
+    warn "  Almost always a --tool-call-parser mismatch in scripts/config.env."
+    warn "  Qwen3.x emits XML tool calls and needs: --tool-call-parser qwen3_xml"
+    warn "  Check the server side with: journalctl --user -u ${VLLM_SERVICE} | grep -i 'Error in extracting tool call'"
+  fi
+
+  # 3) hermes can call the model non-interactively
   echo "  Asking Hermes to round-trip a prompt through the local model..."
   local out
   # `hermes chat -q` is the canonical non-interactive query; `-z` is an alias
