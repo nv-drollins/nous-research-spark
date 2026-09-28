@@ -77,12 +77,18 @@ grep -E "Reasoning-only|Stall guard|Turn ended" ~/.hermes/logs/agent.log | tail
 
 ### Fix
 
-Run the scripted fix (recommended — idempotent, verifies itself):
+**Already installed and broken?** A `git pull` alone will **not** fix it — the
+bad parser is baked into `~/.config/systemd/user/vllm-server.service`, which no
+pull ever touches. Run the repair script. It needs no repo, no config and no
+arguments (it reads everything from the installed unit):
 
 ```bash
-git pull
-./scripts/fix-tool-parser.sh
+curl -fsSL https://raw.githubusercontent.com/nv-drollins/nous-research-spark/main/scripts/fix-tool-parser.sh | bash
 ```
+
+If you do have the repo checked out, `./scripts/fix-tool-parser.sh` works too.
+Either way it is idempotent: on an already-fixed box it reports "no change
+needed" and skips the ~6 minute model reload.
 
 Or do it by hand:
 
@@ -156,9 +162,14 @@ curl -s http://localhost:8000/v1/chat/completions \
 Then confirm end to end:
 
 ```bash
-cd example && hermes -z "Count how many pages 2605.28774v1.pdf has and how large it is on disk."
-# Expect: 41 pages, 1,908,389 bytes
+cd example && hermes -z "Summarize 2605.28774v1.pdf in 3 sentences."
+# Expect: a real summary. Before the fix you get silence or a non-answer.
 ```
+
+> Avoid "how many pages is the PDF?" as your smoke test. `file` reports 13 for
+> this document (it reads the first `/Count` in the page tree, a sub-node);
+> the true count is 41, per `pdfinfo`. A correct agent can still look wrong if
+> it happens to trust `file`. Test the plumbing, not the trivia.
 
 ---
 

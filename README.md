@@ -126,10 +126,12 @@ suggested 3-minute demo flow.
 ## Troubleshooting
 
 **Agent spins for a second, then returns to the prompt with no answer?** That
-is a `--tool-call-parser` mismatch — the most likely problem you'll hit. Run:
+is a `--tool-call-parser` mismatch — the most likely problem you'll hit. A
+`git pull` will *not* fix an existing install; run the repair script (no repo
+or arguments needed):
 
 ```bash
-./scripts/fix-tool-parser.sh
+curl -fsSL https://raw.githubusercontent.com/nv-drollins/nous-research-spark/main/scripts/fix-tool-parser.sh | bash
 ```
 
 See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for the diagnosis and the why.
