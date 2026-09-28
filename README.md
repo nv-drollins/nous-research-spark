@@ -123,6 +123,19 @@ hermes
 See [`example/README.md`](example/README.md) for the full question set and a
 suggested 3-minute demo flow.
 
+## Troubleshooting
+
+**Agent spins for a second, then returns to the prompt with no answer?** That
+is a `--tool-call-parser` mismatch — the most likely problem you'll hit. Run:
+
+```bash
+./scripts/fix-tool-parser.sh
+```
+
+See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for the diagnosis and the why.
+
+---
+
 ## Operating the box
 
 ```bash
